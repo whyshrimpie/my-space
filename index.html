@@ -116,6 +116,35 @@ body,body *{color:#111}
 .login-fields{display:grid;gap:9px;text-align:left}.login-fields label{font-size:11px;color:#665766;font-weight:650}.login-fields input{width:100%;margin-top:5px;border:1px solid #ecd9e5;background:#fffafd;color:#111;border-radius:11px;padding:12px 13px;min-height:46px;font:inherit}
 .login-card .btn{width:100%;margin-top:14px;min-height:46px}.login-message{min-height:20px;margin-top:12px;font-size:12px;color:#555;overflow-wrap:anywhere}.login-message.error{color:#b42318}.login-message.good{color:#18794e}
 
+
+/* Sudoku mini-game */
+.sudoku-intro{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.sudoku-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.72fr);gap:14px;align-items:start}
+.sudoku-board-card,.sudoku-side-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.sudoku-grid{width:min(100%,490px);aspect-ratio:1;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));grid-template-rows:repeat(9,minmax(0,1fr));border:2px solid #d99abc;border-radius:10px;overflow:hidden;margin:0 auto;background:#fff}
+.sudoku-cell{min-width:0;min-height:0;border:0;border-right:1px solid #f0dce9;border-bottom:1px solid #f0dce9;border-radius:0;background:#fff;color:#463744;font-size:clamp(13px,2.5vw,21px);font-weight:550;padding:0;display:grid;place-items:center;position:relative}
+.sudoku-cell:nth-child(3n){border-right:2px solid #d99abc}
+.sudoku-cell:nth-child(n+19):nth-child(-n+27),.sudoku-cell:nth-child(n+46):nth-child(-n+54){border-bottom:2px solid #d99abc}
+.sudoku-cell:nth-child(9n){border-right:0}.sudoku-cell:nth-child(n+73){border-bottom:0}
+.sudoku-cell.given{font-weight:800;color:#76566c;background:#fff9fc}
+.sudoku-cell.related{background:#fff3f9}
+.sudoku-cell.same{background:#f9d9e9;color:#a51c66;font-weight:800}
+.sudoku-cell.selected{background:#edacd0!important;box-shadow:inset 0 0 0 2px #d65b9d;color:#5a1740;z-index:1}
+.sudoku-cell.conflict{color:#c12758;background:#ffe2e9}
+.sudoku-cell.wrong{color:#b42318;background:#ffe2e2}
+.sudoku-keypad{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px;margin-top:13px}
+.sudoku-keypad button{border:1px solid #edcadd;background:#fff7fb;color:#a32d70;border-radius:10px;min-height:42px;font-weight:750;font-size:16px}
+.sudoku-keypad button:hover,.sudoku-keypad button:focus-visible{background:#f8d9e9;outline:2px solid #e7a0c4;outline-offset:1px}
+.sudoku-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.sudoku-actions .btn{flex:1 1 auto}
+.sudoku-status{min-height:42px;padding:11px 12px;margin-top:12px;border-radius:12px;background:#fff6fa;border:1px solid #f2dce8;color:#6f5366;font-size:12px}
+.sudoku-status.good{background:#f1faf5;border-color:#d8eee1;color:#286b49}
+.sudoku-status.error{background:#fff1f2;border-color:#f5d1d7;color:#a12d43}
+.sudoku-side-card h3{margin:0 0 8px;font-size:16px}.sudoku-side-card p{font-size:12px;color:#4d414b;line-height:1.55}
+.sudoku-tip{padding:12px;border-radius:13px;background:#fbf2fa;border:1px solid #f0deed;margin-top:12px;font-size:12px;color:#594653}
+.sudoku-count{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#655260;margin-top:12px}
+@media(max-width:760px){.sudoku-layout{grid-template-columns:minmax(0,1fr)}.sudoku-board-card,.sudoku-side-card{padding:12px}.sudoku-grid{width:100%;max-width:490px}.sudoku-cell{font-size:clamp(14px,4.4vw,21px)}.sudoku-keypad{gap:4px}.sudoku-keypad button{min-height:40px;border-radius:8px}.sudoku-intro{gap:7px}}
+
 </style></head>
 <body>
 <section class="login-gate" id="loginGate" aria-label="Вход в Learning Atelier">
@@ -151,11 +180,21 @@ body,body *{color:#111}
  <div class="card focus"><div><div class="eyebrow">CURRENT FOCUS</div><div id="currentFocusContent"></div></div><span class="tag">В работе</span></div>
 </section>
 <div class="layout"><aside class="card sidebar"><nav class="nav">
-<button class="active" data-page="overview"><span>⌂</span>Обзор</button><button data-page="learning"><span>✧</span>Учебные маршруты</button><button data-page="tasks"><span>♡</span>Задачи</button><button data-page="journal"><span>✎</span>Журнал</button><button data-page="achievements"><span>✿</span>Достижения</button><button data-page="data"><span>⚙</span>Данные</button>
+<button class="active" data-page="overview"><span>⌂</span>Обзор</button><button data-page="learning"><span>✧</span>Учебные маршруты</button><button data-page="tasks"><span>♡</span>Задачи</button><button data-page="sudoku"><span>▦</span>Судоку</button><button data-page="journal"><span>✎</span>Журнал</button><button data-page="achievements"><span>✿</span>Достижения</button><button data-page="data"><span>⚙</span>Данные</button>
 </nav></aside><main class="content">
 <section class="page" id="page-overview"><div class="section-head"><div><h2>Учебные маршруты</h2><p>Основные направления на ближайший период.</p></div><button class="btn soft" onclick="showPage('learning')">Все маршруты →</button></div><div class="courses" id="overviewCourses"></div><div class="panel"><h3>Текущие задачи</h3><div id="overviewTasks" class="task-list"></div></div></section>
 <section class="page hidden" id="page-learning"><div class="section-head"><div><h2>Учебные маршруты</h2><p>Открывай программу курса и отмечай пройденные этапы.</p></div></div><div class="courses" id="allCourses"></div><div id="courseDetail" class="panel hidden"></div><div class="callout">30 Days of Python появится в параллельной работе, когда ты дойдёшь до Week 6 (Python) в CS50x. До этого он не будет отвлекать от C.</div></section>
 <section class="page hidden" id="page-tasks"><div class="section-head"><div><h2>Задачи</h2><p>Небольшие практические шаги, которые ты сама выбираешь.</p></div><button class="btn primary" onclick="taskForm()">+ Добавить</button></div><div id="taskFormHost"></div><div id="allTasks" class="task-list"></div></section>
+<section class="page hidden" id="page-sudoku">
+ <div class="sudoku-intro"><div><div class="eyebrow">A LITTLE BRAIN BREAK</div><h2>Судоку</h2><p class="sub">Небольшая пауза для мозга — без дедлайнов и учебных задач. 🩷</p></div><button class="btn soft" onclick="newSudokuGame()">↻ Новая игра</button></div>
+ <div class="sudoku-layout">
+  <div class="sudoku-board-card"><div class="sudoku-grid" id="sudokuGrid" role="grid" aria-label="Поле судоку"></div><div class="sudoku-keypad" aria-label="Выбор цифры"><button type="button" onclick="enterSudokuNumber(1)" aria-label="Цифра 1">1</button><button type="button" onclick="enterSudokuNumber(2)" aria-label="Цифра 2">2</button><button type="button" onclick="enterSudokuNumber(3)" aria-label="Цифра 3">3</button><button type="button" onclick="enterSudokuNumber(4)" aria-label="Цифра 4">4</button><button type="button" onclick="enterSudokuNumber(5)" aria-label="Цифра 5">5</button><button type="button" onclick="enterSudokuNumber(6)" aria-label="Цифра 6">6</button><button type="button" onclick="enterSudokuNumber(7)" aria-label="Цифра 7">7</button><button type="button" onclick="enterSudokuNumber(8)" aria-label="Цифра 8">8</button><button type="button" onclick="enterSudokuNumber(9)" aria-label="Цифра 9">9</button></div>
+   <div class="sudoku-actions"><button class="btn" onclick="eraseSudokuCell()">⌫ Стереть</button><button class="btn" onclick="hintSudokuCell()">✧ Подсказка</button><button class="btn primary" onclick="checkSudoku()">Проверить</button></div>
+   <div class="sudoku-status" id="sudokuStatus" role="status" aria-live="polite">Выбери пустую клетку и поставь цифру от 1 до 9.</div>
+  </div>
+  <aside class="sudoku-side-card"><h3>Как играть</h3><p>Заполни поле цифрами от 1 до 9. В каждой строке, каждом столбце и каждом квадрате 3 × 3 цифры должны встречаться только один раз.</p><div class="sudoku-count"><span>Заполнено</span><strong id="sudokuFilled">30 / 81</strong></div><div class="sudoku-count"><span>Подсказки</span><strong id="sudokuHints">0</strong></div><div class="sudoku-tip">♡ Маленький лайфхак: сначала ищи строки, столбцы и квадраты, где уже заполнено больше всего клеток. И не торопись — это игра для отдыха.</div><div class="sudoku-actions"><button class="btn" onclick="restartSudokuGame()">Начать заново</button></div></aside>
+ </div>
+</section>
 <section class="page hidden" id="page-journal"><div class="section-head"><div><h2>Журнал обучения</h2><p>Записывай новые идеи, сложные моменты и собственные решения.</p></div></div><form class="form" id="journalForm"><input id="jTitle" placeholder="Заголовок заметки" required><textarea id="jBody" placeholder="Что сегодня стало понятнее? Что получилось сделать самостоятельно?"></textarea><button class="btn primary">Сохранить запись · +10 XP</button></form><div id="entries" class="journal-list"></div></section>
 <section class="page hidden" id="page-achievements"><div class="section-head"><div><h2>Достижения</h2><p>Значимые учебные вехи.</p></div></div><div id="badges" class="badges"></div></section>
 <section class="page hidden" id="page-data"><div class="section-head"><div><h2>Данные и резервные копии</h2><p>Прогресс хранится локально в этом браузере.</p></div></div><div class="panel"><h3>Экспорт / импорт</h3><p class="sub">Скачай JSON-файл, чтобы сохранить маршруты, задачи, журнал и опыт. Его можно импортировать после переустановки или на другом устройстве.</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:13px"><button class="btn primary" onclick="exportData()">Скачать резервную копию</button><label class="btn" for="importFile">Импортировать файл</label><input class="hidden" id="importFile" type="file" accept="application/json" onchange="importData(event)"></div><p class="note">Для синхронизации между устройствами позже добавим облачное хранилище. Сейчас экспорт — способ перенести данные вручную.</p></div></section>
@@ -372,11 +411,62 @@ function taskCard(t){return `<div class="task ${t.done?'done':''}"><input type="
 function toggleTask(id){let t=state.tasks.find(x=>x.id===id);if(!t)return;t.done=!t.done;state.xp=Math.max(0,state.xp+(t.done?t.xp:-t.xp));save()}
 function taskForm(){document.getElementById('taskFormHost').innerHTML=`<form class="form" id="newTask"><input name="title" placeholder="Что хочешь сделать?" required><input name="course" placeholder="К какому курсу относится?"><select name="xp"><option value="10">Небольшой шаг · 10 XP</option><option value="15" selected>Обычная задача · 15 XP</option><option value="25">Сложная задача · 25 XP</option></select><button class="btn primary">Добавить задачу</button></form>`;document.getElementById('newTask').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);state.tasks.push({id:Date.now(),title:f.get('title'),course:f.get('course'),xp:+f.get('xp'),done:false});document.getElementById('taskFormHost').innerHTML='';save()}}
 document.getElementById('journalForm').onsubmit=e=>{e.preventDefault();let title=document.getElementById('jTitle').value.trim(),body=document.getElementById('jBody').value.trim();if(!title)return;state.journal.push({title,body,date:new Date().toISOString()});state.xp+=10;e.target.reset();save()};
+
+const SUDOKU_KEY='learning-atelier-sudoku-v1';
+const SUDOKU_BASE=[
+ [5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],
+ [8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],
+ [0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]
+];
+const SUDOKU_SOLUTION=[
+ [5,3,4,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],
+ [8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],
+ [9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,9]
+];
+let sudokuGame=null;
+function shuffledSudoku(a){let x=a.slice();for(let i=x.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]]}return x}
+function makeSudokuGame(){
+ const digits=[0,...shuffledSudoku([1,2,3,4,5,6,7,8,9])];
+ const rows=shuffledSudoku([0,1,2]).flatMap(b=>shuffledSudoku([0,1,2]).map(r=>b*3+r));
+ const cols=shuffledSudoku([0,1,2]).flatMap(b=>shuffledSudoku([0,1,2]).map(c=>b*3+c));
+ const puzzle=rows.map(r=>cols.map(c=>digits[SUDOKU_BASE[r][c]]));
+ const solution=rows.map(r=>cols.map(c=>digits[SUDOKU_SOLUTION[r][c]]));
+ return {puzzle,solution,board:puzzle.map(r=>r.slice()),givens:puzzle.map(r=>r.map(v=>v!==0)),selected:null,hints:0,checked:false};
+}
+function persistSudoku(){if(sudokuGame)localStorage.setItem(SUDOKU_KEY,JSON.stringify(sudokuGame))}
+function loadSudoku(){try{const x=JSON.parse(localStorage.getItem(SUDOKU_KEY));if(x&&x.board&&x.solution&&x.puzzle)return x}catch(e){}return makeSudokuGame()}
+function sudokuValue(r,c){return sudokuGame.board[r][c]}
+function sudokuPeersConflict(r,c){const v=sudokuValue(r,c);if(!v)return false;for(let i=0;i<9;i++){if(i!==c&&sudokuValue(r,i)===v)return true;if(i!==r&&sudokuValue(i,c)===v)return true}const br=Math.floor(r/3)*3,bc=Math.floor(c/3)*3;for(let y=br;y<br+3;y++)for(let x=bc;x<bc+3;x++)if((y!==r||x!==c)&&sudokuValue(y,x)===v)return true;return false}
+function renderSudoku(){
+ const grid=document.getElementById('sudokuGrid');if(!grid||!sudokuGame)return;
+ const sel=sudokuGame.selected,selectedValue=sel===null?0:sudokuValue(Math.floor(sel/9),sel%9);let filled=0,html='';
+ for(let r=0;r<9;r++)for(let c=0;c<9;c++){
+  const i=r*9+c,v=sudokuValue(r,c),given=sudokuGame.givens[r][c];if(v)filled++;
+  const related=sel!==null&&(Math.floor(sel/9)===r||sel%9===c||(Math.floor(Math.floor(sel/9)/3)===Math.floor(r/3)&&Math.floor((sel%9)/3)===Math.floor(c/3)));
+  const same=!!v&&!!selectedValue&&v===selectedValue,conflict=sudokuPeersConflict(r,c),wrong=!!v&&sudokuGame.checked&&v!==sudokuGame.solution[r][c];
+  const classes=['sudoku-cell',given?'given':'',related?'related':'',same?'same':'',sel===i?'selected':'',conflict?'conflict':'',wrong?'wrong':''].filter(Boolean).join(' ');
+  html+=`<button type="button" role="gridcell" class="${classes}" onclick="selectSudokuCell(${i})" aria-label="Строка ${r+1}, столбец ${c+1}, ${v||'пусто'}">${v||''}</button>`;
+ }
+ grid.innerHTML=html;document.getElementById('sudokuFilled').textContent=filled+' / 81';document.getElementById('sudokuHints').textContent=sudokuGame.hints;
+}
+function sudokuMessage(t,type=''){const el=document.getElementById('sudokuStatus');if(el){el.textContent=t;el.className='sudoku-status'+(type?' '+type:'')}}
+function selectSudokuCell(i){sudokuGame.selected=i;renderSudoku();}
+function enterSudokuNumber(n){if(!sudokuGame||sudokuGame.selected===null){sudokuMessage('Сначала выбери клетку на поле.');return}const r=Math.floor(sudokuGame.selected/9),c=sudokuGame.selected%9;if(sudokuGame.givens[r][c]){sudokuMessage('Эта цифра уже задана в начале игры. Выбери пустую клетку.');return}sudokuGame.board[r][c]=n;sudokuGame.checked=false;persistSudoku();renderSudoku();if(isSudokuSolved())sudokuMessage('Идеально! Судоку решено. Ты умничка! 🩷','good');else sudokuMessage('Цифра поставлена. Продолжай в своём темпе.');}
+function eraseSudokuCell(){if(!sudokuGame||sudokuGame.selected===null)return;const r=Math.floor(sudokuGame.selected/9),c=sudokuGame.selected%9;if(sudokuGame.givens[r][c])return;sudokuGame.board[r][c]=0;sudokuGame.checked=false;persistSudoku();renderSudoku();sudokuMessage('Клетка очищена.');}
+function hintSudokuCell(){if(!sudokuGame||sudokuGame.selected===null){sudokuMessage('Сначала выбери клетку.');return}const r=Math.floor(sudokuGame.selected/9),c=sudokuGame.selected%9;if(sudokuGame.givens[r][c]){sudokuMessage('Эта клетка уже заполнена изначально. Выбери пустую.');return}if(sudokuGame.board[r][c]===sudokuGame.solution[r][c]){sudokuMessage('Здесь уже правильная цифра! Выбери другую клетку.','good');return}sudokuGame.board[r][c]=sudokuGame.solution[r][c];sudokuGame.hints++;sudokuGame.checked=false;persistSudoku();renderSudoku();sudokuMessage('Подсказка готова — цифра открыта. ✨');if(isSudokuSolved())sudokuMessage('Готово! Судоку решено. 🩷','good')}
+function isSudokuSolved(){return sudokuGame.board.every((row,r)=>row.every((v,c)=>v===sudokuGame.solution[r][c]))}
+function checkSudoku(){if(isSudokuSolved()){sudokuMessage('Идеально! Все цифры на своих местах. Судоку решено! 🎉','good');return}let wrong=0,empty=0;for(let r=0;r<9;r++)for(let c=0;c<9;c++){if(!sudokuGame.board[r][c])empty++;else if(sudokuGame.board[r][c]!==sudokuGame.solution[r][c])wrong++}sudokuGame.checked=true;persistSudoku();renderSudoku();if(wrong)sudokuMessage(`Пока есть ${wrong} ${wrong===1?'ошибка':'ошибки'}. Они подсвечены розовым — попробуй исправить.`, 'error');else sudokuMessage(`Всё верно! Осталось заполнить ${empty} ${empty===1?'клетку':'клеток'}. Так держать!`,'good')}
+function restartSudokuGame(){if(!sudokuGame)return;sudokuGame.board=sudokuGame.puzzle.map(r=>r.slice());sudokuGame.selected=null;sudokuGame.hints=0;sudokuGame.checked=false;persistSudoku();renderSudoku();sudokuMessage('Начали заново. У тебя всё получится!')}
+function newSudokuGame(){sudokuGame=makeSudokuGame();persistSudoku();renderSudoku();sudokuMessage('Новая игра готова. Уютной разминки! 🩷')}
+window.addEventListener('keydown',e=>{if(!document.getElementById('page-sudoku')||document.getElementById('page-sudoku').classList.contains('hidden'))return;if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;if(/^[1-9]$/.test(e.key)){enterSudokuNumber(Number(e.key));e.preventDefault()}else if(e.key==='Backspace'||e.key==='Delete'){eraseSudokuCell();e.preventDefault()}else if(sudokuGame&&sudokuGame.selected!==null&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){let r=Math.floor(sudokuGame.selected/9),c=sudokuGame.selected%9;if(e.key==='ArrowUp')r=Math.max(0,r-1);if(e.key==='ArrowDown')r=Math.min(8,r+1);if(e.key==='ArrowLeft')c=Math.max(0,c-1);if(e.key==='ArrowRight')c=Math.min(8,c+1);selectSudokuCell(r*9+c);e.preventDefault()}});
+
 function showPage(p){document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));document.getElementById('page-'+p).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p))}
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
 function exportData(){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.href=u;a.download='learning-atelier-backup.json';a.click();URL.revokeObjectURL(u)}
 function importData(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!Array.isArray(x.courses)||!Array.isArray(x.tasks)||!Array.isArray(x.journal))throw Error();state=x;save();alert('Данные импортированы.')}catch(err){alert('Не удалось прочитать этот файл.')}};r.readAsText(f)}
+sudokuGame=loadSudoku();
 render();
+renderSudoku();
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service worker registration failed:', err)));
 }
