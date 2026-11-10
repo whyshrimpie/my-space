@@ -106,15 +106,39 @@ body,body *{color:#111}
 .sync-message.error{color:#b42318}.sync-message.good{color:#18794e}
 .sync-hidden{display:none!important}
 @media(max-width:600px){.sync-form{display:grid}.sync-form input{width:100%}.sync-actions .btn{flex:1}}
+
+.app.auth-locked{display:none!important}
+/* Private entry screen: the learning app stays hidden until Supabase confirms a session */
+.login-gate{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 90% 0%,#f8e9f5 0,transparent 35%),radial-gradient(ellipse at 0% 80%,#eaf5fb 0,transparent 30%),var(--bg)}
+.login-card{width:min(100%,420px);background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:var(--shadow);text-align:center}
+.login-mark{width:54px;height:54px;margin:0 auto 15px;border-radius:18px;background:linear-gradient(145deg,#f6cde0,#d8c9f4 58%,#c8e7f7);display:grid;place-items:center;font-size:28px;color:#fff}
+.login-card h1{font-size:16px;letter-spacing:.13em;margin:0 0 8px}.login-card p{font-size:13px;color:#555;margin:0 0 20px}
+.login-fields{display:grid;gap:9px;text-align:left}.login-fields label{font-size:11px;color:#665766;font-weight:650}.login-fields input{width:100%;margin-top:5px;border:1px solid #ecd9e5;background:#fffafd;color:#111;border-radius:11px;padding:12px 13px;min-height:46px;font:inherit}
+.login-card .btn{width:100%;margin-top:14px;min-height:46px}.login-message{min-height:20px;margin-top:12px;font-size:12px;color:#555;overflow-wrap:anywhere}.login-message.error{color:#b42318}.login-message.good{color:#18794e}
+
 </style></head>
-<body><div class="app">
+<body>
+<section class="login-gate" id="loginGate" aria-label="Вход в Learning Atelier">
+ <div class="login-card">
+  <div class="login-mark">✧</div>
+  <h1>LEARNING ATELIER</h1>
+  <p>Твоё личное пространство для обучения. Войди, чтобы продолжить.</p>
+  <form id="gateLoginForm" class="login-fields">
+   <label>Электронная почта<input id="gateEmail" type="email" autocomplete="username" placeholder="you@example.com" required></label>
+   <label>Пароль<input id="gatePassword" type="password" autocomplete="current-password" placeholder="Твой пароль" required></label>
+   <button class="btn primary" id="gateLogin" type="submit">Войти</button>
+  </form>
+  <div class="login-message" id="gateMessage" role="status" aria-live="polite">Доступ только для владельца аккаунта.</div>
+ </div>
+</section>
+<div class="app auth-locked">
 <header><div class="brand"><div class="mark">✧</div><div><h1>LEARNING ATELIER</h1><p>Личная учебная среда · build 0.2</p></div></div><div class="top-pill" id="storageStatus">✿ локальное сохранение · офлайн-режим</div></header>
 
 <section class="sync-panel" aria-label="Облачная синхронизация">
- <div class="sync-head"><div><div class="sync-title">☁ Синхронизация между устройствами</div><div class="sync-caption" id="syncCaption">Войди или создай аккаунт, чтобы сохранять прогресс в облаке.</div></div><span class="tag" id="syncBadge">не подключено</span></div>
+ <div class="sync-head"><div><div class="sync-title">☁ Синхронизация между устройствами</div><div class="sync-caption" id="syncCaption">Войди, чтобы сохранять прогресс в облаке.</div></div><span class="tag" id="syncBadge">не подключено</span></div>
  <div id="syncAuth">
   <div class="sync-form"><input id="syncEmail" type="email" autocomplete="email" placeholder="Электронная почта"><input id="syncPassword" type="password" autocomplete="current-password" placeholder="Пароль (от 6 символов)"></div>
-  <div class="sync-actions"><button class="btn primary" id="syncLogin" type="button">Войти</button><button class="btn" id="syncSignup" type="button">Создать аккаунт</button></div>
+  <div class="sync-actions"><button class="btn primary" id="syncLogin" type="button">Войти</button></div>
  </div>
  <div id="syncAccount" class="sync-hidden"><div class="sync-caption" id="syncUserEmail"></div><div class="sync-actions"><button class="btn" id="syncNow" type="button">Синхронизировать сейчас</button><button class="btn" id="syncLogout" type="button">Выйти</button></div></div>
  <div class="sync-message" id="syncMessage" role="status" aria-live="polite"></div>
@@ -179,12 +203,19 @@ const SYNC_META_KEY='learning-atelier-sync-meta-v1';
 function syncMeta(){try{return JSON.parse(localStorage.getItem(SYNC_META_KEY)||'{}')}catch(e){return {}}}
 function setSyncMeta(v){localStorage.setItem(SYNC_META_KEY,JSON.stringify(v))}
 function setSyncMessage(message,type=''){const el=document.getElementById('syncMessage');if(el){el.textContent=message;el.className='sync-message'+(type?' '+type:'')}}
+function setGateMessage(message,type=''){
+ const el=document.getElementById('gateMessage');
+ if(el){el.textContent=message;el.className='login-message'+(type?' '+type:'')}
+}
 function setSyncUI(){
  const auth=document.getElementById('syncAuth'),account=document.getElementById('syncAccount'),badge=document.getElementById('syncBadge'),caption=document.getElementById('syncCaption'),status=document.getElementById('storageStatus');
+ const gate=document.getElementById('loginGate'),app=document.querySelector('.app');
+ if(gate)gate.classList.toggle('hidden',!!currentUser);
+ if(app)app.classList.toggle('auth-locked',!currentUser);
  if(!auth)return;
  auth.classList.toggle('sync-hidden',!!currentUser);account.classList.toggle('sync-hidden',!currentUser);
  if(currentUser){badge.textContent=navigator.onLine?'облако подключено':'ожидает сети';caption.textContent='Прогресс сохраняется на этом устройстве и синхронизируется с аккаунтом.';document.getElementById('syncUserEmail').textContent=currentUser.email||'Аккаунт подключён';status.textContent=navigator.onLine?'☁ облачная синхронизация':'✿ офлайн · изменения сохранены локально'}
- else{badge.textContent='не подключено';caption.textContent='Войди или создай аккаунт, чтобы сохранять прогресс в облаке.';status.textContent='✿ локальное сохранение · офлайн-режим'}
+ else{badge.textContent='не подключено';caption.textContent='Войди, чтобы сохранять прогресс в облаке.';status.textContent='✿ доступ закрыт'}
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(state));render();if(currentUser&&!isApplyingCloud)scheduleCloudSave()}
 function scheduleCloudSave(){clearTimeout(syncTimer);syncTimer=setTimeout(()=>pushCloudState(),900)}
@@ -235,7 +266,7 @@ async function manualSync(){
 }
 async function initCloudSync(){
  try{
-  if(!window.supabase||!window.supabase.createClient){setSyncMessage('Не загрузилась библиотека облачной синхронизации. Проверь подключение к интернету.','error');return}
+  if(!window.supabase||!window.supabase.createClient){setGateMessage('Не удалось загрузить сервис входа. Проверь подключение к интернету и обнови страницу.','error');return}
   supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
   const {data}=await supabaseClient.auth.getSession();
   currentUser=data.session?.user||null;setSyncUI();
@@ -243,12 +274,24 @@ async function initCloudSync(){
   supabaseClient.auth.onAuthStateChange(async(_event,session)=>{
     currentUser=session?.user||null;setSyncUI();
     if(currentUser)await pullCloudState();
-    else setSyncMessage('Ты вышла из аккаунта. Данные остались в этом браузере.');
+    else {setSyncMessage('Ты вышла из аккаунта. Данные остались в этом браузере.');setGateMessage('Ты вышла из аккаунта. Войди снова, чтобы открыть Learning Atelier.');}
   });
- }catch(e){setSyncMessage('Не удалось подключиться к Supabase: '+e.message,'error')}
+ }catch(e){setGateMessage('Не удалось подключиться к сервису входа: '+e.message,'error')}
 }
 document.addEventListener('DOMContentLoaded',()=>{
  const byId=id=>document.getElementById(id);
+ byId('gateLoginForm').addEventListener('submit',async(e)=>{
+  e.preventDefault();
+  if(!supabaseClient){setGateMessage('Сервис входа ещё загружается. Подожди пару секунд и попробуй снова.','error');return}
+  const email=byId('gateEmail').value.trim(),password=byId('gatePassword').value;
+  if(!email||!password){setGateMessage('Введи почту и пароль.','error');return}
+  const button=byId('gateLogin');button.disabled=true;button.textContent='Проверяем доступ…';
+  setGateMessage('Проверяем данные для входа…');
+  const {error}=await supabaseClient.auth.signInWithPassword({email,password});
+  button.disabled=false;button.textContent='Войти';
+  if(error)setGateMessage('Не удалось войти. Проверь почту и пароль.','error');
+  else setGateMessage('Вход выполнен. Загружаем твой кабинет…','good');
+ });
  byId('syncLogin').addEventListener('click',async()=>{
   if(!supabaseClient)return setSyncMessage('Сервис ещё загружается. Обнови страницу через несколько секунд.');
   const email=byId('syncEmail').value.trim(),password=byId('syncPassword').value;
@@ -256,14 +299,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const {error}=await supabaseClient.auth.signInWithPassword({email,password});
   if(error)setSyncMessage(error.message,'error');else setSyncMessage('Вход выполнен. Загружаю прогресс…','good');
  });
- byId('syncSignup').addEventListener('click',async()=>{
-  if(!supabaseClient)return setSyncMessage('Сервис ещё загружается. Обнови страницу через несколько секунд.');
-  const email=byId('syncEmail').value.trim(),password=byId('syncPassword').value;
-  if(!email||!password)return setSyncMessage('Введи почту и пароль.','error');
-  if(password.length<6)return setSyncMessage('Пароль должен содержать не менее 6 символов.','error');
-  const {data,error}=await supabaseClient.auth.signUp({email,password});
-  if(error)setSyncMessage(error.message,'error');else if(data.session)setSyncMessage('Аккаунт создан. Подключаю синхронизацию…','good');else setSyncMessage('Аккаунт создан. Проверь почту и подтверди регистрацию, затем войди.','good');
- });
+
  byId('syncNow').addEventListener('click',manualSync);
  byId('syncLogout').addEventListener('click',async()=>{const {error}=await supabaseClient.auth.signOut();if(error)setSyncMessage(error.message,'error')});
 });
