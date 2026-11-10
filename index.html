@@ -103,12 +103,6 @@ body,body *{color:#111}
 .sync-message.error{color:#b42318}.sync-message.good{color:#18794e}
 .sync-hidden{display:none!important}
 @media(max-width:600px){.sync-form{display:grid}.sync-form input{width:100%}.sync-actions .btn{flex:1}}
-@media (max-width: 600px) {
-  #page-overview .section-head > div:first-child {
-    padding-left: 10px;
-    text-align: left;
-  }
-}
 </style></head>
 <body><div class="app">
 <header><div class="brand"><div class="mark">✧</div><div><h1>LEARNING ATELIER</h1><p>Личная учебная среда · build 0.2</p></div></div><div class="top-pill" id="storageStatus">✿ локальное сохранение · офлайн-режим</div></header>
@@ -293,8 +287,13 @@ function render(){
 function courseCard(c,compact){
  let n=c.stages.length,d=c.progress.filter(Boolean).length,p=Math.round(d/n*100),locked=c.status==='locked';
  let status=c.status==='active'?'В работе':c.status==='locked'?'Откроется на Week 6':c.status==='later'?'Возможный следующий курс':'В плане';
- return `<article class="course ${c.status==='active'?'active':''} ${locked?'locked':''} ${c.tone||''}"><div class="course-top"><span class="tag">${esc(c.category)}</span><small style="color:#9a8c9c">${status}</small></div><h3>${esc(c.name)}</h3><p>${esc(c.desc)}</p><div class="progress"><span style="width:${p}%"></span></div><div class="course-foot"><span>${d} / ${n} этапов</span><b>${p}%</b></div><div class="course-actions"><button class="btn ${c.id==='cs50'?'primary':'soft'}" onclick="showCourse('${c.id}')">${locked?'Подробнее':'Открыть программу'}</button>${c.url?`<a class="link" href="${c.url}" target="_blank" rel="noreferrer">Материалы ↗</a>`:''}</div></article>`;
+ return `<article class="course ${c.status==='active'?'active':''} ${locked?'locked':''} ${c.tone||''}"><div class="course-top"><span class="tag">${esc(c.category)}</span><small style="color:#9a8c9c">${status}</small></div><h3>${esc(c.name)}</h3><p>${esc(c.desc)}</p><div class="progress"><span style="width:${p}%"></span></div><div class="course-foot"><span>${d} / ${n} этапов</span><b>${p}%</b></div><div class="course-actions"><button class="btn ${c.id==='cs50'?'primary':'soft'}" onclick="openCourse('${c.id}')">${locked?'Подробнее':'Открыть программу'}</button>${c.url?`<a class="link" href="${c.url}" target="_blank" rel="noreferrer">Материалы ↗</a>`:''}</div></article>`;
 }
+function openCourse(id) {
+  showPage('learning');
+  showCourse(id);
+}
+
 function showCourse(id,scroll=true){
  let c=course(id);if(!c)return;state.opened=id;
  let locked=c.status==='locked';
